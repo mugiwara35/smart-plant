@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {{page_title}} </title>
+    {% comment %} <link rel="icon" type="image/png" href="{% static 'img/Logo BPR.png' %}"> {% endcomment %}
+    {% include 'snippets/styles.html' %}
+    
+    {% block styles %}
+    
+    {% endblock styles %}
+</head>
+<body id='body-auth'>
+    {% comment %} Page Title {% endcomment %}
+    <div class="container-fluid">
+        {% block page_title %}
+            
+        {% endblock page_title %}       
+    </div>
+
+    {% comment %}  {% endcomment %}
+    <div class="container-fluid">
+        {% block contents %}
+        
+        {% endblock contents %}
+    </div>
+    
+    {% include 'snippets/scripts.html' %}
+
+    {% block scripts %}
+
+    {% endblock scripts %}
+
+</body>
+</html>

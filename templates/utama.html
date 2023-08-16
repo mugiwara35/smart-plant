@@ -1,0 +1,237 @@
+{% extends 'snippets/base.html' %}
+{% load static %}
+
+{% block styles %}
+  {% if request.user.is_authenticated %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="{% static 'vendor/apex-charts/apex-charts.css' %}" />
+  {% endif %}
+
+{% endblock styles %}
+
+{% block contents %}
+  <div class='container-fluid'>
+    {% if request.user.is_authenticated %}
+      <form id='utama_form' action="" method="POST">
+        {% csrf_token %}
+        <div class="row my-2">
+          <div class="col-md-7 py-1">
+            <div class="card rounded-7">
+              <div class="card-body">
+                <h2 class='text-center mt-2'>Kelembapan</h2>
+                <div class='row mb-5 ps-5 pe-5'>
+                  <div class='col-6'>
+                    <div class="clearfix mt-3">
+                      {{filter_form.tanggal_kelembapan.label}}
+                    </div>
+                    <div class="position-relative">
+                      {{filter_form.tanggal_kelembapan}}
+                    </div>
+                  </div>
+                  <div class='col-6'>
+                    <div class="clearfix mt-3">
+                      {{filter_form.tanaman.label}}
+                    </div>
+                    <div class="position-relative">
+                      {{filter_form.tanaman}}
+                    </div>
+                  </div>
+                </div>
+                <canvas id="chLine"></canvas>  
+              </div>
+            </div>
+          </div>
+          <div class='col-md-5 py-1'>
+            <div class="card rounded-7">
+              <div class="card-body">
+                <h2 class='text-center mt-2 mb-3'>Tingkat Air</h2>
+
+                <div id="chart1"></div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+  
+  
+{% endblock contents %}
+    
+{% block scripts %}
+  {% if request.user.is_authenticated %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+    <script>
+      $('.dateselect').datepicker({
+        format: 'yyyy-mm-dd',
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+    <script>
+      var colors = ['#007bff','#28a745','#333333','#c3e6cb','#dc3545','#6c757d'];
+
+      /* large line chart */
+      var chLine = document.getElementById("chLine");
+      var chartData = {
+        //labels: ["S", "M", "T", "W", "T", "F", "S"],
+        labels: [{% for data in monitoring %}'{{data.waktu.hour}}.{{data.waktu.minute}}',{% endfor %}],
+        datasets: [{
+          data: [{% for data in monitoring %}'{{data.kelembapan}}',{% endfor %}],
+          backgroundColor: 'transparent',
+          borderColor: colors[0],
+          borderWidth: 4,
+          pointBackgroundColor: colors[0]
+        }
+        //   {
+        //     data: [639, 465, 493, 478, 589, 632, 674],
+        //     backgroundColor: colors[3],
+        //     borderColor: colors[1],
+        //     borderWidth: 4,
+        //     pointBackgroundColor: colors[1]
+        //   }
+        ]
+      };
+      if (chLine) {
+        new Chart(chLine, {
+        type: 'line',
+        data: chartData,
+        options: {
+          scales: {
+            xAxes: [{
+              ticks: {
+                beginAtZero: false
+              }
+            }]
+          },
+          legend: {
+            display: false
+          },
+          responsive: true
+        }
+        });
+      }
+    </script>
+
+    <script>
+      function addHidden(theForm, key, value) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key; 
+        input.value = value;
+        theForm.appendChild(input);
+      }
+      $('#tanamanField').on('change', function() {
+        var theForm = document.forms['utama_form'];
+        addHidden(theForm, 'aksi', 'kelembapan_tanaman');
+        theForm.submit();
+      });
+
+      $('#tanggal_kelembapanField').on('change', function() {
+        var theForm = document.forms['utama_form'];
+        addHidden(theForm, 'aksi', 'kelembapan_tanaman');
+        theForm.submit();
+      });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+      var options1 = {
+        chart: {
+          width: 300,
+          type: 'donut'
+        },
+        labels: ['Sisa Air', 'Digunakan'],
+        series: [50, 50],
+        colors: ['#03c3ec', '#8592a3'],
+        stroke: {
+          width: 5,
+          colors: '#fff',
+        },
+        
+        dataLabels: {
+            enabled: false,
+            formatter: function (val, opt) {
+              return parseInt(val) + 'Liter';
+            }
+        },
+        legend: {
+            show: false,
+        },
+        grid: {
+          padding: {
+            top: 0,
+            bottom: 0,
+            right: 15
+          }
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '75%',
+              labels: {
+                show: true,
+                value: {
+                  fontSize: '1.5rem',
+                  fontFamily: 'Public Sans',
+                  color: '#566a7f',
+                  offsetY: -15,
+                  formatter: function (val) {
+                    return parseInt(val) + ' Liter';
+                  }
+                },
+                name: {
+                  offsetY: 20,
+                  fontFamily: 'Public Sans'
+                },
+                total: {
+                  show: true,
+                  fontSize: '0.8125rem',
+                  color: '#a1acb8',
+                  label: 'Weekly',
+                  formatter: function (w) {
+                    return '50%';
+                  }
+                }
+              }
+            }
+          }
+        },
+        fill: {
+          type: 'gradient',
+        },
+        //responsive: [{
+          //breakpoint: 480,
+          //options: {
+              //chart: {
+             //     width: 200
+            //  },
+         //     legend: {
+          //        position: 'bottom'
+      //        }
+      //    }
+     //   }],
+      //  tooltip: {
+       //   custom: function({ series, seriesIndex, dataPointIndex, w }) {
+       //     return (
+       //       '<div class="arrow_box">' +
+       //       '<img style="margin: 10px" width="20" height="20" src="https://cdn.pixabay.com/photo/2020/12/29/10/07/coast-5870088_960_720.jpg">' +
+        //      
+        //      "<span>" +
+        //      w.globals.labels[seriesIndex] +
+        //      ": " +
+        //      series[seriesIndex] +
+          //    "</span>" +
+         //     "</div>"
+         //   );
+        //  }
+        //},
+      //  
+      };
+      var chart1 = new ApexCharts(document.querySelector("#chart1"), options1);
+      chart1.render();
+    </script>
+
+  {% endif %}
+{% endblock scripts %}

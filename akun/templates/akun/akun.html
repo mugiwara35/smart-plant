@@ -1,0 +1,92 @@
+{% extends 'snippets/base.html' %}
+{% load static %}
+
+{% block contents %}
+  <div class="container pb-4">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-xl-10">
+        <div class="card rounded-4 text-black">
+          <div class="row g-0">
+            <div class="col-lg-5 d-flex align-items-center">
+              <div class="card-body p-md-5 mx-md-4">
+                <div class="text-center">
+                  <img src="{% static 'img/logo.png' %}"
+                    style="width: 185px;" alt="logo">
+                  <h3 class="mt-1 mb-5 pb-1 fw-bold">SmartPlant</h3>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-7 rounded-4 align-items-center ps-5 pe-5">
+              <form method="POST">
+                {% csrf_token %}
+                <h5 class='text-center fw-bold mt-5'>Akun Anda</h5>
+                <div class='row justify-content-center'>
+                  <div class='col-lg-12 col-md-8 col-12 align-items-center'>
+                    {% for form1 in update_user_form %}
+                      <div class="mb-3">
+                        {{form1.label}}
+                        {{form1}}
+                      </div>
+                    {% endfor %}
+                    {% for form2 in akun_form %}
+                      <div class="mb-3">
+                        {{form2.label}}
+                        {{form2}}
+                      </div>
+                    {% endfor %}
+
+                  </div>
+                </div>
+                <p class='lh-1 text-danger'>{{username_error}}</p>
+                <div class='row mt-5 pb-3'>
+                  <div class='col-6 text-end'>
+                    <a class="btn btn-gray-dark btn-block col-10 col-sm-8 fa-lg mb-3 rounded-7" href={% url 'akun:login' %} type="button">
+                      <i class="bi bi-arrow-left-circle pe-1"></i>
+                      Kembali
+                    </a>
+                  </div>
+                  <div class='col-6 text-start'>
+                    <button class="btn btn-secondary btn-block col-10 col-sm-8 fa-lg gradient-custom mb-3 rounded-7" type="submit" name='simpan' value='simpan'>
+                      <i class="bi bi-save2 pe-1"></i>
+                      Simpan
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% comment %} MODAL {% endcomment %}
+  <div id='myModal' class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Register Berhasil</h5>
+        </div>
+        <div class="modal-body">
+          Proses pembuatan akun baru berhasil. Harap menekan tombol kembal oke untuk melakukan login!
+        </div>
+        <div class="modal-footer">
+          <a href='akun:login' class="btn btn-primary">ok</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock contents %}
+
+
+{% block scripts %}
+  {% if daftar_berhasil %}
+    <script type="text/javascript">
+      $(window).on('load', function() {
+          $('#myModal').modal('show');
+      });
+    </script>
+  {% endif %}
+{% endblock scripts %}
+
+

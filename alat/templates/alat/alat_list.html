@@ -1,0 +1,174 @@
+{% extends 'snippets/base.html' %}
+
+{% block styles %}
+  {% include 'tanaman/snippets/styles.html' %}
+{% endblock styles %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'utama' %}">Home</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Alat</li>
+{% endblock breadcrumb %}
+
+{% block contents %}
+  <div class="row mt-5 pb-5">
+    <div class="col-lg-10 col-md-11 col-sm-12  mx-auto">
+      <div class="card pt-4 rounded-7">
+        <div class='row mt-2 pb-2'>
+          <div class='col-12 col-md-7 text-md-end-center'>
+            <h3>{{heading}}</h3>
+          </div>
+          <div class='col-md-5 text-md-end-center pe-md-5 mt-2 mt-md-0 pb-4 pb-md-0'>
+            <a href={% url 'alat:alat_tambah' %} class='btn btn-primary me-md-3 rounded-7'>
+              <i class="bi bi-plus-circle pe-1"></i>
+              Tambah
+            </a>
+          </div>
+        </div>
+        <form action="" method="POST">
+          {% csrf_token %}
+          <div class="card-body">
+            <div class='pe-3 ps-3 pb-3'>
+              <table id="datatable_jenis" class="table table-striped" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama Alat</th>
+                    <th>MAC ESP</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for data in alat %}
+                    <tr>
+                      <td>{{forloop.counter}}</td>
+                      <td>{{data.nama_alat}}</td>
+                      <td>{{data.mac_esp}}</td>
+                      <td>
+                        <div class='d-md-none'>
+                          <button class="btn btn-secondary" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-caret-down-fill"></i>
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                            <li><button class="dropdown-item" type='button' data-bs-toggle="modal" data-bs-target="#lihatModal{{forloop.counter}}"><i class="bi bi-eye-fill me-2 text-gray-dark"></i>Lihat</button></li>
+                            <li><button class="dropdown-item" type='submit' name='ubah' value={{data.id}}><i class="bi bi-pencil-square text-success me-2"></i>Ubah</button></li>
+                            <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#hapusModal{{forloop.counter}}"><i class="bi bi-trash-fill me-2 text-danger"></i>Hapus</button></li>
+                          </ul>
+                        </div>
+                        <div class='d-none d-md-flex'>
+                          <button type='button' data-bs-toggle="modal" data-bs-target="#lihatModal{{forloop.counter}}" class='btn btn-gray-dark me-2 rounded-5'><i class="bi bi-eye-fill"></i></button>
+                          <button type='submit' name='ubah' value={{data.id}} class='btn btn-success ms-2 me-2 rounded-5'><i class="bi bi-pencil-square"></i></button>
+                          <button type='button' data-bs-toggle="modal" data-bs-target="#hapusModal{{forloop.counter}}" class='btn btn-danger ms-2 rounded-5'><i class="bi bi-trash-fill"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}   
+                </tbody>
+              </table>
+            </div>
+          </div>  
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <form action="" method="POST">
+    {% csrf_token %}
+    {% for data_modal in alat %}
+      <div class="modal fade" id="lihatModal{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title fw-bold" id="exampleModalLabel">Data Alat No : {{forloop.counter}}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class='row'>
+                <div class='col-4 ps-5'>
+                  <p class='lh-1 fw-bold'>Nama Akat</p>
+                </div>
+                <div class='col-6'>
+                  <p class='lh-1'>:  {{data_modal.nama_alat}}</p>
+                </div>
+              </div>
+              <div class='row'>
+                <div class='col-4 ps-5'>
+                  <p class='lh-1 fw-bold'>MAC ESP</p>
+                </div>
+                <div class='col-6'>
+                  <p class='lh-1'>:  {{data_modal.mac_esp}}</p>
+                </div>
+              </div>
+              <div class='row'>
+                <div class='col-4 ps-5'>
+                  <p class='lh-1 fw-bold'>SSID</p>
+                </div>
+                <div class='col-6'>
+                  <p class='lh-1'>:  {{data_modal.ssid}}</p>
+                </div>
+              </div>
+              {% comment %} <div class='row'>
+                <div class='col-4 ps-5'>
+                  <p class='lh-1 fw-bold'>Jumlah Tanaman</p>
+                </div>
+                <div class='col-6'>
+                  <p class='lh-1'>: </p>
+                </div>
+              </div> {% endcomment %}
+              <div class='row'>
+                <div class='col-4 ps-5'>
+                  <p class='lh-1 fw-bold'>Tanggal Aktif</p>
+                </div>
+                <div class='col-6'>
+                  <p class='lh-1'>:  {{data_modal.tanggal_aktif}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer mt-2">
+              <div class='container-fluid'>
+                <div class='row'>
+                  <div class='col-12 text-end'>
+                    <button type="button" class="btn btn-gray rounded-7" data-bs-dismiss="modal">
+                      <i class="bi bi-arrow-left-circle pe-1"></i> 
+                      TUTUP
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% comment %} MODAL HAPUS {% endcomment %}
+      <div class="modal fade" id="hapusModal{{forloop.counter}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Hapus Data Alat No: {{forloop.counter}}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Apakah Anda yakin ingin menghapus data alat No {{forloop.counter}} dengan nama alatnya adalah {{data_modal.nama_alat}}?</p>
+            </div>
+            <div class="modal-footer mt-2">
+              <button type="button" class="btn btn-gray rounded-7 me-2" data-bs-dismiss="modal">
+                <i class="bi bi-arrow-left-circle pe-1"></i> 
+                BATAL
+              </button>
+              <button type="submit" name='hapus' value={{data_modal.id}} class="btn btn-danger rounded-7" data-bs-dismiss="modal">
+                <i class="bi bi-trash pe-1"></i>
+                HAPUS
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </form>
+{% endblock contents %}
+
+{% block scripts %}
+  {% include 'alat/snippets/scripts.html' %}
+{% endblock scripts %}
+
+

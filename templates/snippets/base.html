@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {{page_title}} </title>
+    {% comment %} <link rel="icon" type="image/png" href="{% static 'img/Logo BPR.png' %}"> {% endcomment %}
+    {% include 'snippets/styles.html' %}
+    
+    {% block styles %}
+    
+    {% endblock styles %}
+</head>
+<body id='body' 
+    {% if nav_menu == 'nav_utama' %}
+        {% if not request.user.is_authenticated %}
+            style='padding-top: 0px'
+        {% endif %}
+    {% endif %} 
+>
+
+    {% include 'snippets/navbar.html'%}
+
+    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb"
+    class='mt-2 ms-2'>
+        <ol class="breadcrumb">
+            {% block breadcrumb %}
+            
+            {% endblock breadcrumb %}
+        </ol>
+    </nav>
+
+    {% if nav_menu == 'nav_utama' %}
+        {% if not request.user.is_authenticated %}
+            <section id="hero" class="d-flex align-items-center justify-content-center">
+                <div class="container" data-aos="fade-up">
+            
+                <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="150">
+                    <div class="col-xl-6 col-lg-8">
+                    <h1>SmartPlant<span>.</span></h1>
+                    <h2>Membantu dalam memonitoring tanaman anda</h2>
+                    </div>
+                </div>
+            
+                </div>
+            </section><!-- End Hero -->
+        
+        {% endif %}
+    
+    {% endif %}
+    {% comment %} Page Title {% endcomment %}
+    <div class="container-fluid">
+        {% block page_title %}
+            
+        {% endblock page_title %}       
+    </div>
+
+    {% comment %}  {% endcomment %}
+    <div class="container-fluid">
+        {% block contents %}
+        
+        {% endblock contents %}
+    </div>
+    
+    {% include 'snippets/scripts.html' %}
+
+    {% block scripts %}
+
+    {% endblock scripts %}
+
+</body>
+</html>
