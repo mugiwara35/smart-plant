@@ -20,13 +20,103 @@
           </li>
           
           {% if request.user.is_authenticated %}
-            <li class='nav-item'>
+            {% comment %} <li class='nav-item'>
               {% if nav_menu == 'nav_panen' %}
                 <a class="nav-link active" href="{% url 'panen:panen' %}">Panen</a>
               {% else %}
                 <a class="nav-link" href="{% url 'panen:panen' %}">Panen</a>
               {% endif %}  
+            </li> {% endcomment %}
+
+            <li class='nav-item dropdown'>
+              {% if nav_menu == 'nav_hasil_panen' %}
+                <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Panen
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                  <li>
+                    <a class="dropdown-item active" href="{% url 'panen:hasil_panen_list' %}">
+                     Hasil Panen
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'panen:prediksi_panen' %}">
+                     Prediksi Panen
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'panen:test_panen' %}">
+                      Test Keberhasilan Panen
+                    </a>
+                  </li>
+                </ul>
+              {% elif 'nav_menu' == 'nav_prediksi_panen'%}
+                <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Panen
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'panen:hasil_panen_list' %}">
+                     Hasil Panen
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item active" href="{% url 'panen:prediksi_panen' %}">
+                     Prediksi Panen
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'panen:test_panen' %}">
+                      Test Keberhasilan Panen
+                    </a>
+                  </li>
+                </ul>
+              {% elif 'nav_menu' == 'nav_test_panen'%}
+                <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Panen
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                  <li>
+                    <a class="dropdown-item active" href="{% url 'panen:hasil_panen_list' %}">
+                     Hasil Panen
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'panen:prediksi_panen' %}">
+                     Prediksi Panen
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item active" href="{% url 'panen:test_panen' %}">
+                      Test Keberhasilan Panen
+                    </a>
+                  </li>
+                </ul> 
+              {% else %}
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Panen
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li>
+                  <a class="dropdown-item" href="{% url 'panen:hasil_panen_list' %}">
+                   Hasil Panen
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'panen:prediksi_panen' %}">
+                   Prediksi Panen
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'panen:test_panen' %}">
+                    Test Keberhasilan Panen
+                  </a>
+                </li>
+              </ul>
+              {% endif %}
             </li>
+
+
             <li class='nav-item'>
               {% if nav_menu == 'nav_alat' %}
                 <a class="nav-link active" href="{% url 'alat:alat_list' %}">Alat</a>

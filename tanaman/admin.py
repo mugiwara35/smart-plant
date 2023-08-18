@@ -4,5 +4,6 @@ from django.contrib import admin
 
 from . import models
 
+admin.site.register(models.JENIS_TANAMAN)
 admin.site.register(models.TANAMAN)
 admin.site.register(models.PENJADWALAN)

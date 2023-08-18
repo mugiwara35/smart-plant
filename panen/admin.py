@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PANEN
+from .models import PREDIKSI_PANEN
 # Register your models here.
 
-admin.site.register(PANEN)
+admin.site.register(PREDIKSI_PANEN)

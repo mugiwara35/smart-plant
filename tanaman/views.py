@@ -19,7 +19,7 @@ def tanaman_listView(request):
         if not request.user.is_authenticated:
             return redirect('/login/')
         else:
-            tanaman = TANAMAN.objects.filter(pompa__alat__akun__user=request.user)
+            tanaman = TANAMAN.objects.filter(akun__user=request.user)
             context.update({
                 'tanaman': tanaman,
             })
@@ -66,11 +66,13 @@ def tanaman_tambahView(request):
             if tanaman_form.is_valid():
                 mode = tanaman_form.cleaned_data.get('mode')
                 if mode == 'lembab':
-                    min_kelembapan = tanaman_form.cleaned_data.get('min_kelembapan'),
+                    min_kelembapan = tanaman_form.cleaned_data.get('min_kelembapan')
                 else:
                     min_kelembapan = 0
                 tanaman = TANAMAN.objects.create(
+                    akun = akun,
                     pompa = tanaman_form.cleaned_data.get('pompa'),
+                    jenis_tanaman = tanaman_form.cleaned_data.get('jenis_tanaman'),
                     nama_tanaman = tanaman_form.cleaned_data.get('nama_tanaman'),
                     keterangan = tanaman_form.cleaned_data.get('keterangan'),
                     tanggal_menanam = tanaman_form.cleaned_data.get('tanggal_menanam'),
@@ -184,14 +186,7 @@ def tanaman_ubahView(request):
     
     if request.method == "GET":
         print("GET")
-        
-        data_tanaman = {
-            'nama_tanaman': tanaman.nama_tanaman,
-            'keterangan' : tanaman.keterangan,
-            'min_kelembapan': tanaman.min_kelembapan,
-            'tanggal_menanam' : tanaman.tanggal_menanam,
-        }
-        tanaman_form = tanamanForm(request.user, initial=data_tanaman, instance=tanaman)
+        tanaman_form = tanamanForm(request.user, instance=tanaman)
         penjadwalan_form = penjadwalanForm()
 
         context.update({

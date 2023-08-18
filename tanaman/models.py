@@ -23,7 +23,16 @@ VALIDATOR_MENIT = [
     MaxValueValidator(59),
 ]
 
+class JENIS_TANAMAN(models.Model):
+    nama_jenis = models.CharField(max_length=40, blank=True, null=True)
+    waktu_panen = models.IntegerField(blank=True, null=True)
+    
+    def __str__(self):
+        return "{}. {}".format(self.id, self.nama_jenis)
+
 class TANAMAN(models.Model):
+    akun = models.ForeignKey(AKUN, on_delete=models.CASCADE, blank=True, null=True)
+    jenis_tanaman = models.ForeignKey(JENIS_TANAMAN, on_delete=models.SET_NULL, blank=True, null=True)
     pompa = models.ForeignKey(POMPA, on_delete=models.SET_NULL, blank=True, null=True)
     nama_tanaman = models.CharField(max_length=40, blank=True, null=True)
     keterangan = models.TextField(blank=True, null=True)
@@ -45,3 +54,4 @@ class PENJADWALAN(models.Model):
     
     def __str__(self):
         return "{}. {} - {}.{}".format(self.id, self.tanaman, self.jam, self.menit)
+    

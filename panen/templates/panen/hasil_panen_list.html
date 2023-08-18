@@ -1,5 +1,4 @@
 {% extends 'snippets/base.html' %}
-{% load custom_tags %}
 
 {% block styles %}
   {% include 'tanaman/snippets/styles.html' %}
@@ -7,7 +6,7 @@
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'utama' %}">Home</a></li>
-  <li class="breadcrumb-item active" aria-current="page">Tanaman</li>
+  <li class="breadcrumb-item active" aria-current="page">Hasil Panen</li>
 {% endblock breadcrumb %}
 
 {% block contents %}
@@ -19,7 +18,7 @@
             <h3>{{heading}}</h3>
           </div>
           <div class='col-md-5 text-md-end-center pe-md-5 mt-2 mt-md-0 pb-4 pb-md-0'>
-            <a href={% url 'tanaman:tanaman_tambah' %} class='btn btn-primary me-md-3 rounded-7'>
+            <a href={% url 'panen:hasil_panen_tambah' %} class='btn btn-primary me-md-3 rounded-7'>
               <i class="bi bi-plus-circle pe-1"></i>
               Tambah
             </a>
@@ -34,18 +33,18 @@
                   <tr>
                     <th>No</th>
                     <th>Nama Tanaman</th>
-                    <th>Terhubung Ke Alat</th>
-                    <th>Pompa</th>
+                    <th>Jumlah Buah</th>
+                    <th>Tanggal Panen</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for data in tanaman %}
+                  {% for data in hasil_panen %}
                     <tr>
                       <td>{{forloop.counter}}</td>
-                      <td>{{data.nama_tanaman}}</td>
-                      <td>{{data.pompa.alat.nama_alat}}</td>
-                      <td>{{data.pompa.nama_pompa}}</td>
+                      <td>{{data.tanaman.nama_tanaman}}</td>
+                      <td>{{data.jumlah_buah}}</td>
+                      <td>{{data.tanggal_panen}}</td>
                       <td>
                         <div class='d-md-none'>
                           <button class="btn btn-secondary" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
@@ -76,12 +75,12 @@
 
   <form action="" method="POST">
     {% csrf_token %}
-    {% for data_modal in tanaman %}
+    {% for data_modal in hasil_panen %}
       <div class="modal fade" id="lihatModal{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title fw-bold" id="exampleModalLabel">Data Tanaman No : {{forloop.counter}}</h5>
+              <h5 class="modal-title fw-bold" id="exampleModalLabel">Data Hasil Panen No : {{forloop.counter}}</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -90,104 +89,25 @@
                   <p class='lh-1 fw-bold'>Nama Tanaman</p>
                 </div>
                 <div class='col-6'>
-                  <p class='lh-1'>:  {{data_modal.nama_tanaman}}</p>
+                  <p class='lh-1'>:  {{data_modal.tanaman.nama_tanaman}}</p>
                 </div>
               </div>
               <div class='row'>
                 <div class='col-4 ps-5'>
-                  <p class='lh-1 fw-bold'>Jenis Tanaman</p>
+                  <p class='lh-1 fw-bold'>Jumlah Buah</p>
                 </div>
                 <div class='col-6'>
-                  <p class='lh-1'>:  {{data_modal.jenis_tanaman.nama_jenis}}</p>
+                  <p class='lh-1'>:  {{data_modal.jumlah_buah}}</p>
                 </div>
               </div>
               <div class='row'>
                 <div class='col-4 ps-5'>
-                  <p class='lh-1 fw-bold'>Terhubung Ke Alat</p>
+                  <p class='lh-1 fw-bold'>Tanggal Panen</p>
                 </div>
                 <div class='col-6'>
-                  <p class='lh-1'>:  {{data_modal.pompa.alat.nama_alat}}</p>
+                  <p class='lh-1'>:  {{data_modal.tanggal_panen}}</p>
                 </div>
               </div>
-              <div class='row'>
-                <div class='col-4 ps-5'>
-                  <p class='lh-1 fw-bold'>Pompa</p>
-                </div>
-                <div class='col-6'>
-                  <p class='lh-1'>:  {{data_modal.pompa.nama_pompa}}</p>
-                </div>
-              </div>
-              <div class='row'>
-                <div class='col-4 ps-5'>
-                  <p class='lh-1 fw-bold'>Keterangan</p>
-                </div>
-                <div class='col-6'>
-                  <p class='lh-1'>:  {{data_modal.keterangan}}</p>
-                </div>
-              </div>
-              
-              <div class='row'>
-                <div class='col-4 ps-5'>
-                  <p class='lh-1 fw-bold'>Tanggal Menanam</p>
-                </div>
-                <div class='col-6'>
-                  <p class='lh-1'>:  {{data_modal.tanggal_menanam}}</p>
-                </div>
-              </div>
-              {% if data_modal.mode == 'lembab' %}
-                <div class='row'>
-                  <div class='col-4 ps-5'>
-                    <p class='lh-1 fw-bold'>Mode Penyiraman</p>
-                  </div>
-                  <div class='col-6'>
-                    <p class='lh-1'>:  Berdasarkan Kelembapan</p>
-                  </div>
-                </div> 
-                <div class='row'>
-                  <div class='col-4 ps-5'>
-                    <p class='lh-1 fw-bold'>Minimal Kelembapan</p>
-                  </div>
-                  <div class='col-6'>
-                    <p class='lh-1'>:  {{data_modal.min_kelembapan}}</p>
-                  </div>
-                </div> 
-              {% elif data_modal.mode == 'jadwal' %}
-                <div class='row'>
-                  <div class='col-4 ps-5'>
-                    <p class='lh-1 fw-bold'>Mode Penyiraman</p>
-                  </div>
-                  <div class='col-6'>
-                    <p class='lh-1'>:  Berdasarkan Jadwal</p>
-                  </div>
-                </div> 
-                <div class='row mt-3'>
-                  <p class='lh-1 fw-bold text-center'>JADWAL</p>
-                  <div class='col-12 ps-5 pe-5'>
-                    <table class="table table-striped" style="width:100%">
-                      <thead class='table-theme'>
-                        <tr>
-                          <th>No</th>
-                          <th>Waktu Penyiraman</th>
-                          <th>Pompa Menyala</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for data_penjadwalan in data_modal|penjadwalan %}
-                        <tr>
-                          <td>{{forloop.counter}}</td>
-                          <td>{{data_penjadwalan.jam}}.{{data_penjadwalan.menit}}</td>
-                          <td>{{data_penjadwalan.lama_menyiram}} Menit</td>
-                        </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                  </div>
-  
-                  
-                
-                </div> 
-                
-              {% endif %}
             </div>
             <div class="modal-footer mt-2">
               <div class='container-fluid'>
@@ -210,11 +130,11 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Hapus Data Tanaman No: {{forloop.counter}}</h5>
+              <h5 class="modal-title" id="exampleModalLabel">Hapus Data Hasil Panen No: {{forloop.counter}}</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <p>Apakah Anda yakin ingin menghapus data tanaman No {{forloop.counter}} dengan nama tanamannya adalah {{data_modal.nama_tanaman}}?</p>
+              <p>Apakah Anda yakin ingin menghapus data hasil panen No {{forloop.counter}} dengan tanggal panennya adalah {{data_modal.tanggal_panen}}?</p>
             </div>
             <div class="modal-footer mt-2">
               <button type="button" class="btn btn-gray rounded-7 me-2" data-bs-dismiss="modal">
@@ -234,6 +154,7 @@
 {% endblock contents %}
 
 {% block scripts %}
-  {% include 'tanaman/snippets/scripts.html' %}
+  {% include 'panen/snippets/scripts.html' %}
 {% endblock scripts %}
+
 

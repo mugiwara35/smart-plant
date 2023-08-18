@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
-from .models import PANEN
-from .forms import panenForm
+from .models import PREDIKSI_PANEN, HASIL_PANEN
+from .forms import panenForm, hasil_panenForm, prediksi_panenForm
+from tanaman.models import TANAMAN, JENIS_TANAMAN
+from datetime import date, timedelta
 import math
 
 # Create your views here.
@@ -102,13 +104,13 @@ def normalisasi(training,suhu,jumlah_air, kelembapan):
     return norm_suhu, norm_jumlah_air, norm_kelembapan
 
 @csrf_exempt
-def panenView(request):
+def test_panenView(request):
     panen_form = panenForm(request.POST or None)
     K = 7
     context = {
         'page_title': 'Panen',
-        'heading': 'Prediksi Panen',
-        'nav_menu': 'nav_panen',
+        'heading': 'Test Keberhasilan Panen',
+        'nav_menu': 'nav_test_panen',
         'panen_form': panen_form,
     }
     if request.method == "GET":
@@ -123,7 +125,7 @@ def panenView(request):
                 suhu = panen_form.cleaned_data.get('suhu')
                 jumlah_air = panen_form.cleaned_data.get('jumlah_air')
                 kelembapan = panen_form.cleaned_data.get('kelembapan')
-                panen = PANEN.objects.all()
+                panen = PREDIKSI_PANEN.objects.all()
                 data_training = []
                 
                 for data in panen:
@@ -155,7 +157,142 @@ def panenView(request):
                 print('ga valid')
     
     return render(request, 'panen/panen.html', context)
+
+@csrf_exempt
+def hasil_panen_listView(request): 
+    context = {
+        'page_title': 'Panen',
+        'heading': 'Hasil Panen',
+        'nav_menu': 'nav_hasil_panen',
+    }
+    if request.method == "GET":
+        print('get')
+        if not request.user.is_authenticated:
+            return redirect('/login/')
+        else:
+            hasil_panen = HASIL_PANEN.objects.filter(tanaman__akun__user=request.user)
+            context.update({
+                'hasil_panen': hasil_panen,
+            })
+    elif request.method == "POST":
+        if 'ubah' in request.POST:
+            request.session['hasil_panen_ubah_dipilih'] = int(request.POST.get('ubah'))
+            return redirect('panen:hasil_panen_ubah')
+        elif 'hapus' in request.POST:
+            print('hapus')
+            hasil_panen = HASIL_PANEN.objects.get(id=int(request.POST.get('hapus')))
+            hasil_panen.delete()
+            request.session['hasil_panen_hapus_berhasil'] = 'berhasil'
+            return redirect('panen:hasil_panen_hapus_berhasil')
+        
+    return render(request, 'panen/hasil_panen_list.html', context)
+
+@csrf_exempt
+def hasil_panen_tambahView(request):
     
+    hasil_panen_form = hasil_panenForm(request.user, request.POST or None)
+    context = {
+        'page_title': 'Tambah Panen',
+        'heading': 'Prediksi Panen',
+        'nav_menu': 'nav_hasil_panen',
+        'hasil_panen_form': hasil_panen_form,
+    }
+    
+    if request.method == "GET":
+        if not request.user.is_authenticated:
+            return redirect('utama')
+    elif request.method == "POST":
+        if 'tambah' in request.POST:
+            if hasil_panen_form.is_valid():
+                
+                hasil_panen = HASIL_PANEN.objects.create(
+                    tanaman = hasil_panen_form.cleaned_data.get('tanaman'),
+                    jumlah_buah = hasil_panen_form.cleaned_data.get('jumlah_buah'),
+                    tanggal_panen = hasil_panen_form.cleaned_data.get('tanggal_panen'),
+                
+                )
+                if hasil_panen.pk:
+                    print('berhasil tambah')
+                    request.session['hasil_panen_tambah_berhasil'] = 'berhasil'
+                    return redirect('panen:hasil_panen_tambah_berhasil')
+                else:
+                    print('gagal tambah')
+    return render(request, 'panen/hasil_panen_tambah.html', context)
+  
+def hasil_panen_ubahView(request):
+    if not 'hasil_panen_ubah_dipilih' in request.session and not request.user.is_authenticated:
+        return redirect('utama')    
+    hasil_panen = HASIL_PANEN.objects.get(id=request.session['hasil_panen_ubah_dipilih'])
+    context = {
+        'page_title': 'Panen',
+        'heading': 'Prediksi Panen',
+        'nav_menu': 'nav_hasil_panen',
+    }
+    
+    if request.method == "GET":
+        print("GET")
+        hasil_panen_form = hasil_panenForm(request.user, instance=hasil_panen)
+
+        context.update({
+            'hasil_panen_form': hasil_panen_form,
+        })
+        
+    elif request.method == "POST":
+        print("POST")
+        hasil_panen_form = hasil_panenForm(request.user, request.POST or None, instance=hasil_panen)
+
+        context.update({
+            'hasil_panen_form': hasil_panen_form,
+        })
+            
+        if 'simpan' in request.POST:
+            print('post simpan')
+            if hasil_panen_form.is_valid():
+                print('berhasil tanaman')
+                hasil_panen_form.save()
+                request.session['hasil_panen_ubah_berhasil'] = 'berhasil'
+                return redirect('panen:hasil_panen_ubah_berhasil')  
+            else:
+                print('tidak valid')
+        
+    return render(request, 'panen/hasil_panen_ubah.html', context)
+   
+@csrf_exempt
+def prediksi_panenView(request):
+    prediksi_panen_form = prediksi_panenForm(request.user, request.POST or None)
+
+    context = {
+    'page_title': 'Prediksi Panen Selanjutnya',
+    'heading': 'Prediksi Panen',
+    'nav_menu': 'nav_prediksi_panen',
+    'prediksi_panen_form': prediksi_panen_form,
+    }
+    if request.method == "GET":
+        print('get')
+        if not request.user.is_authenticated:
+            return redirect('/login/')
+        
+    elif request.method == "POST":
+        if 'tanaman' in request.POST:
+            if prediksi_panen_form.is_valid():
+                try:    
+                    hasil_panen = HASIL_PANEN.objects.filter(tanaman=prediksi_panen_form.cleaned_data.get('tanaman')).latest('id')
+                    lama_panen = hasil_panen.tanaman.jenis_tanaman.waktu_panen
+                    tanggal_panen = hasil_panen.tanggal_panen + timedelta(days=lama_panen)
+
+                    context.update({
+                        'terakhir_panen': hasil_panen.tanggal_panen,
+                        'tanggal_panen' : tanggal_panen,
+                    })
+                    print('ada')
+                except HASIL_PANEN.DoesNotExist:
+                    print('ga ada')
+                    tanaman = TANAMAN.objects.get(id=prediksi_panen_form.cleaned_data.get('tanaman').id)
+                    context.update({
+                        'pertama_menanam': tanaman.tanggal_menanam,
+                    })
+    return render(request, 'panen/prediksi_panen.html', context)
+   
 class klasifikasiView(View):
     
     template_name = 'panen/klasifikasi.html'
@@ -181,4 +318,36 @@ class klasifikasiView(View):
                     'body': 'Sayang Sekali, tumbuhan anda akan mengalami gagal panen. Silahkan menekan tombol kembali untuk pergi ke halaman panen',
                     'klasifikasi': 'gagal',
                 })
+        return render(request, self.template_name, self.context)
+    
+    
+class berhasilView(View):
+    
+    template_name = 'panen/berhasil.html'
+    aksi = None
+    context = {}
+    
+    def get(self, request, *args, **kwargs):
+        print('get')
+        if not 'hasil_panen_tambah_berhasil' in request.session and not 'hasil_panen_ubah_berhasil' in request.session and not 'hasil_panen_hapus_berhasil' in request.session:
+            return redirect('utama')
+        else:
+            if self.aksi == 'hasil_panen_tambah_berhasil':
+                self.context.update({
+                    'page_title': 'Tambah Hasil Panen Berhasil',
+                    'heading': 'Proses Menambahkan Hasil Panen Berhasil',
+                    'body': 'Proses menambahkan hasil panen telah berhasil. Silahkan tekan tombol kembali untuk pergi ke halaman hasil panen',
+                })
+            elif self.aksi == 'hasil_panen_ubah_berhasil':
+               self.context.update({
+                    'page_title': 'Update hasil panen Berhasil',
+                    'heading': 'Proses Menyimpan Perubahan hasil panen Anda Berhasil',
+                    'body': 'Proses menyimpan perubahan pada hasil panen anda berhasil disimpan. Silahkan tekan tombol kembali untuk pergi ke halaman hasil panen',
+                }) 
+            elif self.aksi == 'hasil_panen_hapus_berhasil':
+               self.context.update({
+                    'page_title': 'Update Tanaman Berhasil',
+                    'heading': 'Proses Menyimpan Perubahan Hasil Panen Anda Berhasil',
+                    'body': 'Proses menghapus data hasil panen anda berhasil. Silahkan tekan tombol kembali untuk pergi ke halaman hasil panen',
+                }) 
         return render(request, self.template_name, self.context)

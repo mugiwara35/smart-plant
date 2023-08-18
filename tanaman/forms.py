@@ -7,6 +7,10 @@ from pompa.models import POMPA
 class pompaChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return f'{obj.alat.nama_alat} - {obj.nama_pompa}'
+    
+class jenis_tanamanChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return f'{obj.nama_jenis}'
 
 class tanamanForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
@@ -22,12 +26,24 @@ class tanamanForm(forms.ModelForm):
             required=False,
         )
         
+        self.fields['jenis_tanaman'] = jenis_tanamanChoiceField(
+            widget=forms.Select(
+                attrs={
+                    'id':'jenis_tanamanField',
+                    'class':'form-select form-select-md',
+                }
+            ),
+            queryset=models.JENIS_TANAMAN.objects.all(),
+            required=False,
+        )
+        
     class Meta:
         model = models.TANAMAN
         fields = [
-            'pompa', 'nama_tanaman', 'keterangan', 'min_kelembapan', 'mode','tanggal_menanam',
+            'jenis_tanaman','pompa', 'nama_tanaman', 'keterangan', 'min_kelembapan', 'mode','tanggal_menanam',
         ]
         labels = {
+            'jenis_tanaman': 'Nama Jenis Tanaman',
             'nama_tanaman': 'Nama Tanaman',
             'tanggal_menanam': 'Tanggal Menanam',
             'min_kelembapan': 'Minimal Kelembapan',
@@ -40,7 +56,12 @@ class tanamanForm(forms.ModelForm):
                     'class':'form-select form-select-md', 
                 }
             ),
-            
+            'jenis_tanaman': forms.Select(
+                attrs={
+                    'id':'jenis_tanamanField',
+                    'class':'form-select form-select-md', 
+                }
+            ),
             'nama_tanaman': forms.TextInput(
                 attrs={
                     'class': 'form-control',
